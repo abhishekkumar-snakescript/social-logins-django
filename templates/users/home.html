@@ -1,0 +1,202 @@
+{% extends "users/base.html" %}
+{% load socialaccount %}
+
+{% block title %}Django Google Authentication{% endblock %}
+
+{% block content %}
+    <h1>Django Google Authentication</h1>
+    
+    {% if user.is_authenticated %}
+        <div class="user-info">
+            <h2>Welcome, {{ user.username }}!</h2>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>First Name:</strong> {{ user.first_name|default:"Not provided" }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name|default:"Not provided" }}</p>
+            <p><strong>Date Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+            <hr>
+            <h3>Connected Social Accounts:</h3>
+            {% if social_accounts %}
+                <ul>
+                {% for account in social_accounts %}
+                    <li>{{ account.provider|title }} ({{ account.uid }}) {% if current_provider == account.provider %}<strong>(Current Login)</strong>{% endif %}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No social accounts connected.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <div id="auth-forms">
+            <div id="login-form" style="display: block;">
+                <h2>Login</h2>
+                <form method="post" action="{% url 'login' %}" style="margin-top: 20px; margin-bottom: 30px;">
+                    {% csrf_token %}
+                    {{ login_form.non_field_errors }}
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        {{ login_form.username.label_tag }}<br>
+                        <input type="text" name="username" class="login-input" required id="id_username" value="{{ login_form.username.value|default_if_none:'' }}">
+                        {% for error in login_form.username.errors %}
+                            <div class="message message-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        {{ login_form.password.label_tag }}<br>
+                        <input type="password" name="password" class="login-input" required id="id_password">
+                        {% for error in login_form.password.errors %}
+                            <div class="message message-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <button type="button" class="btn btn-success" onclick="toggleForms('register')">Register</button>
+                </form>
+            </div>
+            <div id="register-form" style="display: none;">
+                <h2>Register</h2>
+                <form method="post" action="{% url 'register' %}" style="margin-top: 20px; margin-bottom: 30px;">
+                    {% csrf_token %}
+                    {{ register_form.non_field_errors }}
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        {{ register_form.username.label_tag }}<br>
+                        <input type="text" name="username" class="login-input" required id="id_reg_username" value="{{ register_form.username.value|default_if_none:'' }}">
+                        {% for error in register_form.username.errors %}
+                            <div class="message message-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        {{ register_form.password1.label_tag }}<br>
+                        <input type="password" name="password1" class="login-input" required id="id_password1">
+                        {% for error in register_form.password1.errors %}
+                            <div class="message message-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        {{ register_form.password2.label_tag }}<br>
+                        <input type="password" name="password2" class="login-input" required id="id_password2">
+                        {% for error in register_form.password2.errors %}
+                            <div class="message message-error">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-success">Register</button>
+                    <button type="button" class="btn" onclick="toggleForms('login')">Back to Login</button>
+                </form>
+            </div>
+        </div>
+        <br>
+        {% load socialaccount %}
+        <div class="social-login-section" style="margin-top: 30px; text-align: center;">
+            <div class="divider" style="margin: 20px 0; position: relative;">
+                <span style="background: #f7fafd; padding: 0 15px; color: #6b7280; font-size: 14px;">or continue with</span>
+                <hr style="position: absolute; top: 50%; left: 0; right: 0; z-index: -1; border: none; border-top: 1px solid #e5e7eb;">
+            </div>
+            
+            <div class="social-buttons" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <form method="post" action="{% provider_login_url 'google' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="social-btn google-btn" style="
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 12px 20px;
+                        background: #fff;
+                        color: #db4437;
+                        border: 1.5px solid #db4437;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        margin-bottom: 10px;
+                    ">
+                        <i class="fab fa-google" style="margin-right: 8px; font-size: 16px;"></i>
+                        Google
+                    </button>
+                </form>
+                <form method="post" action="{% provider_login_url 'github' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="social-btn github-btn" style="
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 12px 20px;
+                        background: #fff;
+                        color: #333;
+                        border: 1.5px solid #333;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        margin-bottom: 10px;
+                    ">
+                        <i class="fab fa-github" style="margin-right: 8px; font-size: 16px;"></i>
+                        GitHub
+                    </button>
+                </form>
+                <form method="post" action="{% provider_login_url 'facebook' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="social-btn facebook-btn" style="
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 12px 20px;
+                        background: #fff;
+                        color: #4267B2;
+                        border: 1.5px solid #4267B2;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        margin-bottom: 10px;
+                    ">
+                        <i class="fab fa-facebook" style="margin-right: 8px; font-size: 16px;"></i>
+                        Facebook
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <style>
+            .social-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            .google-btn:hover {
+                background: #db4437 !important;
+                color: #fff !important;
+                border-color: #db4437 !important;
+            }
+            .github-btn:hover {
+                background: #333 !important;
+                color: #fff !important;
+                border-color: #333 !important;
+            }
+            .facebook-btn:hover {
+                background: #4267B2 !important;
+                color: #fff !important;
+                border-color: #4267B2 !important;
+            }
+        </style>
+        <style>
+            .login-input { 
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 16px;
+                margin-top: 5px;
+                margin-bottom: 5px;
+                transition: border-color 0.3s ease;
+            }
+            .login-input:focus {
+                border-color: #667eea;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+            }
+        </style>
+        <script>
+            function toggleForms(form) {
+                document.getElementById('login-form').style.display = (form === 'login') ? 'block' : 'none';
+                document.getElementById('register-form').style.display = (form === 'register') ? 'block' : 'none';
+            }
+        </script>
+    {% endif %}
+{% endblock %} 

@@ -1,0 +1,111 @@
+{% extends "users/base.html" %}
+{% load socialaccount %}
+
+{% block title %}Social Login - Django Social Auth{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh; background: #f7fafd;">
+    <div class="card shadow-sm" style="width: 100%; max-width: 400px; border-radius: 18px;">
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <h2 class="mb-2" style="font-weight: 700; color: #2563eb;"><i class="fas fa-sign-in-alt"></i> Social Login</h2>
+                <p class="text-muted mb-0">Sign in with your favorite provider</p>
+            </div>
+            <div class="d-grid gap-3 mb-4">
+                {% get_providers as socialaccount_providers %}
+                {% with google_found=False github_found=False facebook_found=False %}
+                    {% for provider in socialaccount_providers %}
+                        {% if provider.id == 'google' %}
+                            {% with google_found=True %}{% endwith %}
+                            <form method="post" action="{% provider_login_url provider.id process='login' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-lg btn-google w-100">
+                                    <i class="fab fa-google me-2"></i> Continue with Google
+                                </button>
+                            </form>
+                        {% elif provider.id == 'github' %}
+                            {% with github_found=True %}{% endwith %}
+                            <form method="post" action="{% provider_login_url provider.id process='login' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-lg btn-github w-100">
+                                    <i class="fab fa-github me-2"></i> Continue with GitHub
+                                </button>
+                            </form>
+                        {% elif provider.id == 'facebook' %}
+                            {% with facebook_found=True %}{% endwith %}
+                            <form method="post" action="{% provider_login_url provider.id process='login' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-lg btn-facebook w-100">
+                                    <i class="fab fa-facebook me-2"></i> Continue with Facebook
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endfor %}
+                    
+                {% endwith %}
+            </div>
+            <div class="text-center mb-2">
+                <span class="text-muted">or</span>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-user"></i> Username/Password Login
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: #f7fafd !important;
+    }
+    .btn-google {
+        background: #fff;
+        color: #db4437;
+        border: 1px solid #db4437;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-google:hover:enabled {
+        background: #db4437;
+        color: #fff;
+    }
+    .btn-github {
+        background: #fff;
+        color: #333;
+        border: 1px solid #333;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-github:hover:enabled {
+        background: #333;
+        color: #fff;
+    }
+    .btn-facebook {
+        background: #fff;
+        color: #4267B2;
+        border: 1px solid #4267B2;
+        font-weight: 500;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-facebook:hover:enabled {
+        background: #4267B2;
+        color: #fff;
+    }
+    .card {
+        border-radius: 18px;
+    }
+</style>
+{% endblock %} 
+
+
+
+
+<!-- 
+
+https://cc59-103-223-15-44.ngrok-free.app/accounts/facebook/login/callback/
+https://2aa7-103-223-15-44.ngrok-free.app/accounts/facebook/login/callback/ -->

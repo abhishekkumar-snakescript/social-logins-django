@@ -1,0 +1,70 @@
+{% extends "users/base.html" %}
+{% load socialaccount %}
+
+{% block title %}Register - Django Social Auth{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3><i class="fas fa-user-plus"></i> Register</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {% for error in field.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> Register
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Social Registration Buttons -->
+                <div class="mt-4">
+                    <div class="text-center mb-3">
+                        <span class="text-muted">Or register with:</span>
+                    </div>
+                    {% get_providers as socialaccount_providers %}
+                    {% for provider in socialaccount_providers %}
+                        {% if provider.social_app %}
+                            <a href="{% provider_login_url provider.id process='signup' %}" 
+                               class="btn btn-outline-success social-btn w-100 mb-2">
+                                {% if provider.id == 'google' %}
+                                    <i class="fab fa-google"></i> Register with Google
+                                {% elif provider.id == 'github' %}
+                                    <i class="fab fa-github"></i> Register with GitHub
+                                {% elif provider.id == 'facebook' %}
+                                    <i class="fab fa-facebook"></i> Register with Facebook
+                                {% else %}
+                                    Register with {{ provider.name }}
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-3">
+                    <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="text-decoration-none">Login here</a></p>
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm mt-2">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

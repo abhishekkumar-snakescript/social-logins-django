@@ -1,0 +1,27 @@
+{% load allauth socialaccount %}
+{% get_providers as socialaccount_providers %}
+{% if socialaccount_providers %}
+<div class="social-login-section">
+    <div class="text-center mb-3">
+        <span class="text-muted">Or continue with</span>
+    </div>
+    <div class="d-grid gap-2">
+        {% for provider in socialaccount_providers %}
+            {% if provider.social_app %}
+                <a href="{% provider_login_url provider.id process=process %}" 
+                   class="btn btn-outline-primary btn-block">
+                    {% if provider.id == 'google' %}
+                        <i class="fab fa-google"></i> Continue with Google
+                    {% elif provider.id == 'github' %}
+                        <i class="fab fa-github"></i> Continue with GitHub
+                    {% elif provider.id == 'facebook' %}
+                        <i class="fab fa-facebook"></i> Continue with Facebook
+                    {% else %}
+                        Continue with {{ provider.name }}
+                    {% endif %}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %} 
